@@ -22,9 +22,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
     public function __construct()
     {
-
-        $this->id                 = 'klump'; // payment gateway ID
-        $this->icon               = plugins_url('assets/images/klump.png', KLP_WC_PLUGIN_FILE); // payment gateway icon
+        $this->id   = 'klump'; // payment gateway ID
+        $this->icon = '';
+//        $this->icon               = plugins_url('assets/images/klump.png', KLP_WC_PLUGIN_FILE); // payment gateway icon
         $this->has_fields         = false; // for custom credit card form
         $this->title              = 'Pay with Klump'; // vertical tab title
         $this->method_title       = 'Pay with Klump'; // payment method name
@@ -200,7 +200,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
 
         // payment processor JS that allows to get a token
-        wp_enqueue_script('klp_payment_js', 'https://js.useklump.com/klump.js', [], '1.0.0', true);
+        wp_enqueue_script('klp_payment_js', KLP_WC_SDK_URL, [], '1.0.0', true);
 
         wp_enqueue_script('klp_js', plugins_url('assets/js/klp-payment.js', KLP_WC_PLUGIN_FILE), [], '1.0.0', true);
 
@@ -217,9 +217,28 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $the_order_key = method_exists($order, 'get_order_key') ? $order->get_order_key() : $order->order_key;
             $firstname     = $order->get_billing_first_name();
             $lastname      = $order->get_billing_last_name();
+            $shipping_fee  = (float)$order->get_shipping_total();
+
+            $order_items = [];
+            foreach ($order->get_items() as $key => $item) {
+                $product   = wc_get_product($item->get_product_id());
+                $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
+
+                $order_items[] = [
+                    'image_url'  => $image_url,
+                    'item_url'   => $product->get_permalink(),
+                    'name'       => $item->get_name(),
+                    'unit_price' => ($item->get_subtotal() / $item->get_quantity()),
+                    'quantity'   => $item->get_quantity(),
+                ];
+            }
 
             if ($the_order_key === $order_key) {
-                $payment_params = compact('amount', 'email', 'txnref', 'primary_key', 'currency', 'firstname', 'lastname', 'cb_url');
+                $payment_params = compact('amount', 'email', 'txnref', 'primary_key', 'currency', 'firstname', 'lastname', 'cb_url', 'order_items');
+
+                if ($shipping_fee) {
+                    $payment_params['shipping_fee'] = $shipping_fee;
+                }
             }
 
             update_post_meta($order_id, '_klp_payment_txn_ref', $txnref);

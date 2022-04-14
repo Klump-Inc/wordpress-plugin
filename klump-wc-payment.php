@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
 }
 
 define('KLP_WC_PLUGIN_FILE', __FILE__);
+define('KLP_WC_SDK_URL', 'https://staging-js.useklump.com/klump.js');
 
 function klp_wc_payment_init()
 {

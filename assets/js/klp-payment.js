@@ -3,12 +3,12 @@ const payload = {
     data: {
         amount: klp_payment_params.amount,
         currency: klp_payment_params.currency,
-        // redirect_url,
         merchant_reference: klp_payment_params.txnref,
         meta_data: {
             customer: klp_payment_params.firstname + ' ' + klp_payment_params.lastname,
             email: klp_payment_params.email
-        }
+        },
+        items: klp_payment_params.order_items
     },
     onSuccess: (data) => {
         console.log('html onSuccess will be handled by the merchant');
@@ -32,6 +32,9 @@ const payload = {
         console.log('html onClose will be handled by the merchant');
         console.log(data);
     }
+}
+if (klp_payment_params.shipping_fee) {
+    payload.data.shipping_fee = klp_payment_params.shipping_fee
 }
 document.getElementById('klump__checkout').addEventListener('click', function () {
     const klump = new Klump(payload);
