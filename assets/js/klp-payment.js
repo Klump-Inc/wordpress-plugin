@@ -8,12 +8,14 @@ const payload = {
             customer: klp_payment_params.firstname + ' ' + klp_payment_params.lastname,
             email: klp_payment_params.email
         },
-        items: klp_payment_params.order_items
+        items: klp_payment_params.order_items,
+        redirect_url: klp_payment_params.cb_url,
+        // shipping_fee: parseFloat(klp_payment_params.shipping_fee),
     },
     onSuccess: (data) => {
         console.log('html onSuccess will be handled by the merchant');
         console.log(data);
-        transactionComplete(data)
+        transactionComplete(data.data.data.data)
         return data;
     },
     onError: (data) => {
@@ -33,47 +35,28 @@ const payload = {
         console.log(data);
     }
 }
-if (klp_payment_params.shipping_fee) {
-    payload.data.shipping_fee = klp_payment_params.shipping_fee
-}
 document.getElementById('klump__checkout').addEventListener('click', function () {
     const klump = new Klump(payload);
 });
 
 function transactionComplete(data) {
-    console.log('Sending data');
-
-    const XHR = new XMLHttpRequest();
-
-    let urlEncodedData = "",
-        urlEncodedDataPairs = [],
-        name;
-
-    // Turn the data object into an array of URL-encoded key/value pairs.
-    for (name in data) {
-        urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
+    const fields = {
+        order_id: klp_payment_params.order_id,
+        ...data
     }
 
-    // Combine the pairs into a single string and replace all %-encoded spaces to
-    // the '+' character; matches the behavior of browser form submissions.
-    urlEncodedData = urlEncodedDataPairs.join('&').replace(/%20/g, '+');
+    const form = document.createElement("form");
+    form.setAttribute("method", "POST");
+    form.setAttribute("action", klp_payment_params.cb_url);
 
-    // Define what happens on successful data submission
-    XHR.addEventListener('load', function (event) {
-        console.log('Yeah! Data sent and response loaded.');
-    });
+    for (let item in fields) {
+        const field = document.createElement("input");
+        field.setAttribute("type", "hidden");
+        field.setAttribute("name", item);
+        field.setAttribute("value", data[item]);
+        form.appendChild(field);
+    }
 
-    // Define what happens in case of error
-    XHR.addEventListener('error', function (event) {
-        console.log('Oops! Something went wrong.');
-    });
-
-    // Set up our request
-    XHR.open('POST', klp_payment_params.cb_url);
-
-    // Add the required HTTP header for form data POST requests
-    XHR.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    // Finally, send our data.
-    XHR.send(urlEncodedData);
+    document.body.appendChild(form);
+    form.submit();
 }

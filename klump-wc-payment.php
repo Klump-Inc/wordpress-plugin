@@ -19,6 +19,7 @@ if (!defined('ABSPATH')) {
 
 define('KLP_WC_PLUGIN_FILE', __FILE__);
 define('KLP_WC_SDK_URL', 'https://staging-js.useklump.com/klump.js');
+define('KLP_WC_SDK_VERIFICATION_URL', 'https://staging-api.useklump.com/v1/transactions/');
 
 function klp_wc_payment_init()
 {
@@ -66,4 +67,18 @@ function klp_wc_add_payment_gateway(array $gateways): array
 {
     $gateways[] = 'KLP_WC_Payment_Gateway';
     return $gateways;
+}
+
+if (!function_exists('write_log')) {
+    function write_log($log)
+    {
+        if (true === WP_DEBUG) {
+            if (is_array($log) || is_object($log)) {
+                error_log(print_r($log, true));
+            } else {
+                error_log($log);
+            }
+        }
+    }
+
 }
