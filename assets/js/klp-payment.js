@@ -10,7 +10,6 @@ const payload = {
         },
         items: klp_payment_params.order_items,
         redirect_url: klp_payment_params.cb_url,
-        // shipping_fee: parseFloat(klp_payment_params.shipping_fee),
     },
     onSuccess: (data) => {
         console.log('html onSuccess will be handled by the merchant');
@@ -35,6 +34,11 @@ const payload = {
         console.log(data);
     }
 }
+
+if (klp_payment_params.shipping_fee !== '0' && klp_payment_params.shipping_fee > 0) {
+    payload.data.shipping_fee = klp_payment_params.shipping_fee;
+}
+
 document.getElementById('klump__checkout').addEventListener('click', function () {
     const klump = new Klump(payload);
 });
