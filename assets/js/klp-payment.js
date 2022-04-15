@@ -12,27 +12,15 @@ const payload = {
         redirect_url: klp_payment_params.cb_url,
     },
     onSuccess: (data) => {
-        console.log('html onSuccess will be handled by the merchant');
-        console.log(data);
         transactionComplete(data.data.data.data)
         return data;
     },
     onError: (data) => {
-        console.log('html onError will be handled by the merchant');
-        console.log(data);
+        console.error('Klump Gateway Error has occurred.')
     },
-    onLoad: (data) => {
-        console.log('html onLoad will be handled by the merchant');
-        console.log(data);
-    },
-    onOpen: (data) => {
-        console.log('html OnOpen will be handled by the merchant');
-        console.log(data);
-    },
-    onClose: (data) => {
-        console.log('html onClose will be handled by the merchant');
-        console.log(data);
-    }
+    onLoad: (data) => {},
+    onOpen: (data) => {},
+    onClose: (data) => {}
 }
 
 if (klp_payment_params.shipping_fee !== '0' && klp_payment_params.shipping_fee > 0) {
