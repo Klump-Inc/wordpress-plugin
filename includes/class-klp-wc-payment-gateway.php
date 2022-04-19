@@ -24,7 +24,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     {
         $this->id   = 'klump'; // payment gateway ID
         $this->icon = '';
-//        $this->icon               = plugins_url('assets/images/klump.png', KLP_WC_PLUGIN_FILE); // payment gateway icon
+
+        // $this->icon            = plugins_url('assets/images/klump.png', KLP_WC_PLUGIN_FILE); // payment gateway icon
+
         $this->has_fields         = false; // for custom credit card form
         $this->title              = 'Pay with Klump'; // vertical tab title
         $this->method_title       = 'Pay with Klump'; // payment method name
@@ -62,8 +64,17 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
         // Action hook to load custom JavaScript
         add_action('wp_enqueue_scripts', [$this, 'payment_scripts']);
+
+        // Check if the gateway can be used.
+        if (!$this->supportCurrency()) {
+            $this->enabled = 'no';
+        }
     }
 
+    /**
+     * Gateway settings fields and default values
+     * @return void
+     */
     public function init_form_fields(): void
     {
         $this->form_fields = [
@@ -138,15 +149,14 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'label'       => __('Enable autocomplete orders', 'klp-payments'),
                 'type'        => 'checkbox',
                 'description' => __('Enable orders autocomplete', 'klp-payments'),
-                'default'     => 'no',
+                'default'     => 'yes',
                 'desc_tip'    => false,
             ],
         ];
     }
 
     /**
-     * Handles admin notices
-     *
+     * Admin notices
      * @return void
      */
     public function admin_notices(): void
@@ -170,6 +180,10 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
     }
 
+    /**
+     * Load payment scripts
+     * @return void
+     */
     public function payment_scripts(): void
     {
         if (!is_checkout_pay_page()) {
@@ -229,13 +243,18 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $product   = wc_get_product($item->get_product_id());
                 $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
 
-                $order_items[] = [
-                    'image_url'  => $image_url,
+                $order_item = [
                     'item_url'   => $product->get_permalink(),
                     'name'       => $item->get_name(),
                     'unit_price' => ($item->get_subtotal() / $item->get_quantity()),
                     'quantity'   => $item->get_quantity(),
                 ];
+
+                if ($image_url) {
+                    $order_item['image_url'] = $image_url;
+                }
+
+                $order_items[] = $order_item;
             }
 
             if ($the_order_key === $order_key) {
@@ -261,8 +280,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     }
 
     /**
-     * Displays the payment page.
-     *
+     * Shows the payment page.
      * @param $order_id
      */
     public function receipt_page($order_id): void
@@ -275,9 +293,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
         if ($this->show_klp_ads) {
             echo '<div id="klump__ad">';
-            echo '<input type="number" value="2000" id="klump__price">';
+            echo '<input type="number" value="' . $order->get_total() . '" id="klump__price">';
             echo '<input type="text" value="' . $this->public_key . '" id="klump__merchant__public__key">';
-            echo '<input type="text" value="NGN" id="klump__currency">';
+            echo '<input type="text" value="' . $order->get_currency() . '" id="klump__currency">';
             echo '</div>';
         }
 
@@ -288,6 +306,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     }
 
     /**
+     * Process payment
      * @param $order_id
      * @return array
      */
@@ -302,6 +321,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     }
 
     /**
+     * Verify payment
      * @return void
      */
     public function klp_verify_payment(): void
@@ -419,6 +439,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     }
 
     /**
+     * Verify webhook information
      * @return void
      */
     public function klp_webhook(): void
@@ -456,7 +477,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
             http_response_code(200);
 
-            if (in_array($order->get_status(), ['processing', 'completed', 'on-hold'])) {
+            if (in_array($order->get_status(), ['completed', 'on-hold'])) {
                 exit;
             }
 
@@ -513,8 +534,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     WC()->cart->empty_cart();
                 }
             } else {
-                $order->payment_complete($klp_merchant_reference);
-                $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
+//                $order->payment_complete($klp_merchant_reference);
+//                $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
 
                 if ($this->is_autocomplete_order_enabled) {
                     $order->update_status('completed');
@@ -522,5 +543,18 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 WC()->cart->empty_cart();
             }
         }
+    }
+
+    /**
+     * Check if payment gateway supports currency
+     * @return false
+     */
+    public function supportCurrency(): bool
+    {
+        if (!in_array(get_woocommerce_currency(), apply_filters('klump_wc_supported_currencies', ['NGN']), true)) {
+            return false;
+        }
+
+        return true;
     }
 }
