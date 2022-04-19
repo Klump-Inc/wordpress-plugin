@@ -18,9 +18,12 @@ const payload = {
     onError: (data) => {
         console.error('Klump Gateway Error has occurred.')
     },
-    onLoad: (data) => {},
-    onOpen: (data) => {},
-    onClose: (data) => {}
+    onLoad: (data) => {
+    },
+    onOpen: (data) => {
+    },
+    onClose: (data) => {
+    }
 }
 
 if (klp_payment_params.shipping_fee !== '0' && klp_payment_params.shipping_fee > 0) {

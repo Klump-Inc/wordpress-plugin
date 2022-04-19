@@ -112,6 +112,11 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'title' => __('Live Private Key', 'klp-payments'),
                 'type'  => 'password',
             ],
+            'webhook'                       => [
+                'title'       => __('Webhook URL', 'klp-payments'),
+                'type'        => 'hidden',
+                'description' => __('Please copy and paste this webhook URL on your API Keys & Webhooks tab of your settings page on your dashboard <strong><pre><code>' . WC()->api_request_url('klp_wc_payment_webhook') . '</code></pre></strong> (<a href="https://merchant.useklump.com/settings" target="_blank">Klump Account</a>)', 'klp-payments'),
+            ],
             'show_klp_ads'                  => [
                 'title'       => __('Enable Klump Ads', 'klp-payments'),
                 'label'       => __('Show Klump Ads', 'klp-payments'),
@@ -329,11 +334,12 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $klp_merchant_reference = $klp_response['data']['merchant_reference'];
                 $klp_amount             = $klp_response['data']['amount'];
                 $klp_currency           = $klp_response['data']['currency'];
+                $klp_status             = $klp_response['data']['status'];
 
                 $order_details     = explode('_', $klp_merchant_reference);
-                $verified_order_id = $order_details[1];
+                $verified_order_id = (int)$order_details[1];
 
-                if ('new' === $klp_response['data']['status'] && $verified_order_id == $order_id) {
+                if (('new' === $klp_status || 'successful' === $klp_status) && $verified_order_id === (int)$order_id) {
                     if (in_array($order->get_status(), ['processing', 'completed', 'on-hold'])) {
                         wp_redirect($this->get_return_url($order));
                         exit;
@@ -347,32 +353,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     $gateway_symbol   = get_woocommerce_currency_symbol($payment_currency);
 
                     if ($payment_currency !== $order_currency || $amount_paid < $order_total) {
-                        if ($payment_currency !== $order_currency) {
-
-                            $order->update_status('on-hold', '');
-
-                            update_post_meta($order_id, '_transaction_id', $order_id);
-
-                            $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'klp-payments'), '<br />', '<br />', '<br />');
-                            $notice_type = 'notice';
-
-                            // Add Customer Order Note
-                            $order->add_order_note($notice, 1);
-
-                            // Add Admin Order Note
-                            $admin_order_note = sprintf(__('<strong>Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Klump Payment Transaction Reference:</strong> %9$s', 'klp-payments'), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $reference);
-                            $order->add_order_note($admin_order_note);
-
-                            if (function_exists('wc_reduce_stock_levels')) {
-                                wc_reduce_stock_levels($order_id);
-                            }
-                            wc_add_notice($notice, $notice_type);
-
-                        }
-
                         if ($amount_paid < $order_total) {
                             $order->update_status('on-hold', '');
-                            add_post_meta($order_id, '_transaction_id', $order_id, true);
+                            add_post_meta($order_id, '_transaction_id', $klp_merchant_reference, true);
 
                             $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment transaction was successful, but the amount paid is not the same as the total order amount.%2$sYour order is currently on hold.%3$sKindly contact us for more information regarding your order and payment status.', 'klp-payments'), '<br />', '<br />', '<br />');
                             $notice_type = 'notice';
@@ -381,7 +364,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                             $order->add_order_note($notice, 1);
 
                             // Add Admin Order Note
-                            $admin_order_note = sprintf(__('<strong>Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Klump Payment Transaction Reference:</strong> %9$s', 'klp-payments'), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $reference);
+                            $admin_order_note = sprintf(__('<strong>Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Klump Payment Transaction Reference:</strong> %9$s', 'klp-payments'), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $klp_merchant_reference);
                             $order->add_order_note($admin_order_note);
 
                             if (function_exists('wc_reduce_stock_levels')) {
@@ -390,11 +373,33 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
                             wc_add_notice($notice, $notice_type);
                         }
-                    } else {
-                        $order->payment_complete($order_id);
-                        $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $reference));
 
-                        if ($this->is_autocomplete_order_enabled) {
+                        if ($payment_currency !== $order_currency) {
+
+                            $order->update_status('on-hold', '');
+
+                            update_post_meta($order_id, '_transaction_id', $klp_merchant_reference);
+
+                            $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'klp-payments'), '<br />', '<br />', '<br />');
+                            $notice_type = 'notice';
+
+                            // Add Customer Order Note
+                            $order->add_order_note($notice, 1);
+
+                            // Add Admin Order Note
+                            $admin_order_note = sprintf(__('<strong>Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Klump Payment Transaction Reference:</strong> %9$s', 'klp-payments'), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $klp_merchant_reference);
+                            $order->add_order_note($admin_order_note);
+
+                            if (function_exists('wc_reduce_stock_levels')) {
+                                wc_reduce_stock_levels($order_id);
+                            }
+                            wc_add_notice($notice, $notice_type);
+                        }
+                    } else {
+                        $order->payment_complete($klp_merchant_reference);
+                        $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
+
+                        if ($this->is_autocomplete_order_enabled && 'successful' === $klp_status) {
                             $order->update_status('completed');
                         }
 
@@ -413,8 +418,109 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         exit;
     }
 
+    /**
+     * @return void
+     */
     public function klp_webhook(): void
     {
-        // @todo Implement webhook
+        if (!array_key_exists('x-klump-signature', $_SERVER) || (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST')) {
+            exit;
+        }
+
+        $klump_event_payload = json_decode(file_get_contents('php://input'), true);
+
+        if ($_SERVER['x-klump-signature'] !== hash_hmac('sha512', $klump_event_payload, $this->secret_key)) {
+            exit;
+        }
+
+        if ('successful' === $klump_event_payload['data']['status']) {
+            sleep(10);
+
+            $klp_merchant_reference = $klump_event_payload['data']['merchant_reference'];
+            $amount_paid            = $klump_event_payload['data']['amount'];
+            $payment_currency       = strtoupper($klump_event_payload['data']['currency']);
+
+            $order_details = explode('_', $klp_merchant_reference);
+            $order_id      = (int)$order_details[1];
+            $order         = wc_get_order($order_id);
+
+            if (!$order) {
+                exit;
+            }
+
+            $klp_txn_ref = get_post_meta($order_id, '_klp_payment_txn_ref', true);
+
+            if ($klp_merchant_reference !== $klp_txn_ref) {
+                exit;
+            }
+
+            http_response_code(200);
+
+            if (in_array($order->get_status(), ['processing', 'completed', 'on-hold'])) {
+                exit;
+            }
+
+            $order_total     = $order->get_total();
+            $order_currency  = $order->get_currency();
+            $currency_symbol = get_woocommerce_currency_symbol($order_currency);
+            $gateway_symbol  = get_woocommerce_currency_symbol($payment_currency);
+
+            if ($payment_currency !== $order_currency || $amount_paid < $order_total) {
+                if ($amount_paid < $order_total) {
+                    $order->update_status('on-hold', '');
+
+                    add_post_meta($order_id, '_transaction_id', $klp_merchant_reference, true);
+
+                    $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment transaction was successful, but the amount paid is not the same as the total order amount.%2$sYour order is currently on hold.%3$sKindly contact us for more information regarding your order and payment status.', 'klp-payments'), '<br />', '<br />', '<br />');
+                    $notice_type = 'notice';
+
+                    // Add Customer Order Note
+                    $order->add_order_note($notice, 1);
+
+                    // Add Admin Order Note
+                    $admin_order_note = sprintf(__('<strong>Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Amount paid is less than the total order amount.%3$sAmount Paid was <strong>%4$s (%5$s)</strong> while the total order amount is <strong>%6$s (%7$s)</strong>%8$s<strong>Klump Payment Transaction Reference:</strong> %9$s', 'klp-payments'), '<br />', '<br />', '<br />', $currency_symbol, $amount_paid, $currency_symbol, $order_total, '<br />', $klp_merchant_reference);
+                    $order->add_order_note($admin_order_note);
+
+                    if (function_exists('wc_reduce_stock_levels')) {
+                        wc_reduce_stock_levels($order_id);
+                    }
+
+                    wc_add_notice($notice, $notice_type);
+
+                    WC()->cart->empty_cart();
+                }
+
+                if ($payment_currency !== $order_currency) {
+
+                    $order->update_status('on-hold', '');
+
+                    update_post_meta($order_id, '_transaction_id', $klp_merchant_reference);
+
+                    $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.', 'klp-payments'), '<br />', '<br />', '<br />');
+                    $notice_type = 'notice';
+
+                    // Add Customer Order Note
+                    $order->add_order_note($notice, 1);
+
+                    // Add Admin Order Note
+                    $admin_order_note = sprintf(__('<strong>Look into this order</strong>%1$sThis order is currently on hold.%2$sReason: Order currency is different from the payment currency.%3$sOrder Currency is <strong>%4$s (%5$s)</strong> while the payment currency is <strong>%6$s (%7$s)</strong>%8$s<strong>Klump Payment Transaction Reference:</strong> %9$s', 'klp-payments'), '<br />', '<br />', '<br />', $order_currency, $currency_symbol, $payment_currency, $gateway_symbol, '<br />', $klp_merchant_reference);
+                    $order->add_order_note($admin_order_note);
+
+                    if (function_exists('wc_reduce_stock_levels')) {
+                        wc_reduce_stock_levels($order_id);
+                    }
+                    wc_add_notice($notice, $notice_type);
+                    WC()->cart->empty_cart();
+                }
+            } else {
+                $order->payment_complete($klp_merchant_reference);
+                $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
+
+                if ($this->is_autocomplete_order_enabled) {
+                    $order->update_status('completed');
+                }
+                WC()->cart->empty_cart();
+            }
+        }
     }
 }
