@@ -334,11 +334,12 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $klp_merchant_reference = $klp_response['data']['merchant_reference'];
                 $klp_amount             = $klp_response['data']['amount'];
                 $klp_currency           = $klp_response['data']['currency'];
+                $klp_status             = $klp_response['data']['status'];
 
                 $order_details     = explode('_', $klp_merchant_reference);
                 $verified_order_id = (int)$order_details[1];
 
-                if ('new' === $klp_response['data']['status'] && $verified_order_id === (int)$order_id) {
+                if (('new' === $klp_status || 'successful' === $klp_status) && $verified_order_id === (int)$order_id) {
                     if (in_array($order->get_status(), ['processing', 'completed', 'on-hold'])) {
                         wp_redirect($this->get_return_url($order));
                         exit;
@@ -398,7 +399,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                         $order->payment_complete($klp_merchant_reference);
                         $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
 
-                        if ($this->is_autocomplete_order_enabled) {
+                        if ($this->is_autocomplete_order_enabled && 'successful' === $klp_status) {
                             $order->update_status('completed');
                         }
 
@@ -432,7 +433,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             exit;
         }
 
-        if ('new' === $klump_event_payload['data']['status']) {
+        if ('successful' === $klump_event_payload['data']['status']) {
             sleep(10);
 
             $klp_merchant_reference = $klump_event_payload['data']['merchant_reference'];
