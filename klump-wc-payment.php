@@ -2,13 +2,14 @@
 declare(strict_types=1);
 
 /**
- * Plugin Name: Klump WooCommerce Payment Gateway
+ * Plugin Name: Klump WC Payment Gateway
  * Plugin URI: https://useklump.com/
- * Description: WooCommerce payment gateway for Klump BNPL.
+ * Description: Payment gateway for Klump BNPL.
  * Version: 1.0.0
  * Author: Klump Team
  * Author URI: https://useklump.com/developers
- * License: MIT License
+ * License: GPLv2 or later
+*  License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * WC requires at least: 4.0.0
  * WC tested up to: 6.3
  */
@@ -18,8 +19,8 @@ if (!defined('ABSPATH')) {
 }
 
 define('KLP_WC_PLUGIN_FILE', __FILE__);
-define('KLP_WC_SDK_URL', 'https://staging-js.useklump.com/klump.js');
-define('KLP_WC_SDK_VERIFICATION_URL', 'https://staging-api.useklump.com/v1/transactions/');
+define('KLP_WC_SDK_URL', 'https://js.useklump.com/klump.js');
+define('KLP_WC_SDK_VERIFICATION_URL', 'https://api.useklump.com/v1/transactions/');
 
 function klp_wc_payment_init()
 {
