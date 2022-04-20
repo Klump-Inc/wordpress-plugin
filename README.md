@@ -1,4 +1,4 @@
-# Klump Woocommerce Payment Gateway
+# Klump Payment Gateway
 
 ### Authors
 
