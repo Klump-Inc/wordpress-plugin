@@ -1,16 +1,15 @@
 === Klump WooCommerce Payment Gateway ===
-Tags: klump, woocommerce, bnpl, buy now pay later, payment gateway, nigeria, useklump
-WC requires at least: 4.0.0
-WC tested up to: 6.3
-Requires PHP: 7.1
+Contributors: paywithklump
+Donate link: null
+Tags: klump, useklump, woocommerce payment, bnpl, buy now pay later, payment gateway, pay by installment, africa bnpl
+Requires at least: 4.7
+Tested up to: 5.9
+Stable tag: 1.0.0
+Requires PHP: 7.2
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 
-Klump WooCommerce plugin allows merchants in Nigeria to give their customers the option of purchasing an item or service and make payment in four instalments.
-
-== Description ==
-
-Use Klump to buy today, and pay in 4 equal instalments over 3 months! Businesses accept payments and increase conversion rate and revenue. The Easy Life! Try it now.
+Klump WooCommerce plugin allows merchants to give their customers the option of purchasing an item or service and make payment in four instalments.
 
 = Note =
 
@@ -23,7 +22,6 @@ This plugin is meant to be used by merchants in Nigeria.
 *   A Klump merchant account—use an existing account or [create an account here](https://merchant.useklump.com/sign-up)
 *   An active [WooCommerce installation](https://docs.woocommerce.com/document/installing-uninstalling-woocommerce/)
 *   A valid [SSL Certificate](https://docs.woocommerce.com/document/ssl-and-https/)
-
 
 == Changelog ==
 

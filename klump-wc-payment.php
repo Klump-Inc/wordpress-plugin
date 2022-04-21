@@ -2,16 +2,27 @@
 declare(strict_types=1);
 
 /**
- * Plugin Name: Klump WC Payment Gateway
- * Plugin URI: https://useklump.com/
- * Description: Payment gateway for Klump BNPL.
- * Version: 1.0.0
- * Author: Klump Team
- * Author URI: https://useklump.com/developers
- * License: GPLv2 or later
-*  License URI: http://www.gnu.org/licenses/gpl-2.0.html
- * WC requires at least: 4.0.0
- * WC tested up to: 6.3
+ * Klump WC Payment Gateway
+ *
+ * @package           KlumpPayment
+ * @author            Klump Developers
+ * @copyright         2022 Klump Inc.
+ * @license           GPL-2.0-or-later
+ *
+ * @wordpress-plugin
+ * Plugin Name:       Klump WC Payment Gateway
+ * Plugin URI:        https://useklump.com/
+ * Description:       Payment gateway for Klump BNPL.
+ * Version:           1.0.0
+ * Requires at least: 5.2
+ * Requires PHP:      7.2
+ * WC requires at least: 5.0
+ * WC tested up to: 6.3.1
+ * Author:            Klump Developers
+ * Author URI:        https://useklump.com/developers
+ * Text Domain:       klp-payments
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 if (!defined('ABSPATH')) {
