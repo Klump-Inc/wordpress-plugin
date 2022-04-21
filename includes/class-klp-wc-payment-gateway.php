@@ -207,7 +207,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             return;
         }
 
-        $order_key = urldecode($_GET['key']);
+        $order_key = sanitize_text_field(urldecode($_GET['key']));
         $order_id  = absint(get_query_var('order-pay'));
 
         $order = wc_get_order($order_id);
@@ -293,9 +293,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
         if ($this->show_klp_ads) {
             echo '<div id="klump__ad">';
-            echo '<input type="number" value="' . $order->get_total() . '" id="klump__price">';
-            echo '<input type="text" value="' . $this->public_key . '" id="klump__merchant__public__key">';
-            echo '<input type="text" value="' . $order->get_currency() . '" id="klump__currency">';
+            echo '<input type="number" value="' . esc_attr($order->get_total()) . '" id="klump__price">';
+            echo '<input type="text" value="' . esc_attr($this->public_key) . '" id="klump__merchant__public__key">';
+            echo '<input type="text" value="' . esc_attr($order->get_currency()) . '" id="klump__currency">';
             echo '</div>';
         }
 
