@@ -89,3 +89,8 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 
 = 1.0.1 - April 25, 2022 =
 *   Update installation guide
+
+== Upgrade Notice ==
+
+= 1.0.1 =
+*   Upgrade for installation guide and screenshot
