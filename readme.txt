@@ -75,6 +75,13 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 *   An active [WooCommerce installation](https://docs.woocommerce.com/document/installing-uninstalling-woocommerce/)
 *   A valid [SSL Certificate](https://docs.woocommerce.com/document/ssl-and-https/)
 
+== Screenshots ==
+
+1. Klump plugin download or installed not activated
+2. Activated Klump plugin
+3. WooCommerce Payments tab - Klump settings page
+4. Save Klump settings
+
 == Changelog ==
 
 = 1.0.0 - April 20, 2022 =
