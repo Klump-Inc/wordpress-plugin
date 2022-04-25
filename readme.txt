@@ -17,16 +17,14 @@ This plugin is meant to be used by merchants in Nigeria.
 
 = Suggestions / Feature Request =
 
-If you have challenges using the plugin or suggestions or a new feature request, kindly reach out via the [contact form on our website](https://useklump.com/contact).
-Follow us on [Twitter](https://twitter.com/UseKlump), [LinkedIn](https://www.linkedin.com/company/pay-with-klump/?originalSubdomain=ng)
+If you have challenges using the plugin or suggestions or a new feature request, kindly reach out via the [contact form on our website](https://useklump.com/contact) or send us an email at support@useklump.com
 
 
 == Installation ==
 
 = Requirements =
 Ensure the following plugins are already installed on your site:
-*   WooCommerce
-*   WooCommerce Shipping & Tax
+*   [WooCommerce](https://wordpress.org/plugins/woocommerce/)
 
 = Automatic Installation =
 *   Login to WordPress admin dashboard
