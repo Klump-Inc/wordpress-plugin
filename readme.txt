@@ -1,10 +1,10 @@
 === Klump WooCommerce Payment Gateway ===
 Contributors: paywithklump
 Donate link: null
-Tags: klump, useklump, woocommerce payment, bnpl, buy now pay later, payment gateway, pay by installment, africa bnpl
+Tags: klump, useklump, woocommerce payment, bnpl, buy now pay later, payment gateway, pay by instalments, africa bnpl
 Requires at least: 4.7
 Tested up to: 5.9
-Stable tag: 1.0.1
+Stable tag: 1.0.4
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -51,7 +51,7 @@ Ensure the following plugins are already installed on your site:
 
 = Klump Configuration Reference =
 *   __Enable/Disable__ - Check this checkbox to Enable "Pay with Klump" on your store's checkout page
-*   __Title__ - This is what users will see on the checkout page. The default is "Pay in 4 installment" but you can change this to better reflect how you communicate with your customers.
+*   __Title__ - This is what users will see on the checkout page. The default is "Pay in 4 instalments - Klump" but you can change this to better reflect how you communicate with your customers.
 *   __Description__ - This controls the message that appears under the payment fields on the checkout page. You can change the default description to describe in your own words the benefit of Klump to your customers.
 *   __Test Mode__ - Check this to enable test mode. Test mode requires test public and secret key and it allows you to see Klump in action before going live to start receiving real payments from your customers.
 *   __API Keys__ - Klump requires public and private API keys for both test mode and live mode. You can obtain them from your Klump merchant dashboard.
@@ -90,7 +90,25 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 = 1.0.1 - April 25, 2022 =
 *   Update installation guide
 
+= 1.0.2 - May 4, 2022  =
+*   Add logo & update screenshots
+
+= 1.0.3 - May 4, 2022  =
+*   Update screenshots
+
+= 1.0.4 - May 30, 2022  =
+*   Fix issue with checkout
+
 == Upgrade Notice ==
 
 = 1.0.1 =
 *   Upgrade for installation guide and screenshot
+
+= 1.0.2 =
+*   Add logo & update screenshots
+
+= 1.0.3 =
+*   Update screenshots
+
+= 1.0.4 =
+*   Fix issue with checkout

@@ -13,7 +13,7 @@ declare(strict_types=1);
  * Plugin Name:       Klump WC Payment Gateway
  * Plugin URI:        https://useklump.com/
  * Description:       Payment gateway for Klump BNPL.
- * Version:           1.0.1
+ * Version:           1.0.4
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * WC requires at least: 5.0

@@ -23,9 +23,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     public function __construct()
     {
         $this->id   = 'klump'; // payment gateway ID
-        $this->icon = '';
-
-        // $this->icon            = plugins_url('assets/images/klump.png', KLP_WC_PLUGIN_FILE); // payment gateway icon
+        $this->icon = plugins_url('assets/images/klump.png', KLP_WC_PLUGIN_FILE); // payment gateway icon
 
         $this->has_fields         = false; // for custom credit card form
         $this->title              = 'Pay with Klump'; // vertical tab title
@@ -82,7 +80,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'title'       => __('Enable/Disable', 'klp-payments'),
                 'label'       => __('Enable Klump Payment', 'klp-payments'),
                 'type'        => 'checkbox',
-                'description' => __('Enable Klump to allow your customers pay for your products by installments.', 'klp-payments'),
+                'description' => __('Enable Klump to allow your customers pay for your products by instalments.', 'klp-payments'),
                 'default'     => 'no',
                 'desc_tip'    => true,
             ],
@@ -90,14 +88,14 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'title'       => __('Title', 'klp-payments'),
                 'type'        => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'klp-payments'),
-                'default'     => __('Pay in 4 Installment', 'klp-payments'),
+                'default'     => __('Pay in 4 instalments - Klump', 'klp-payments'),
                 'desc_tip'    => true,
             ],
             'description'                   => [
                 'title'       => __('Description', 'klp-payments'),
                 'type'        => 'textarea',
                 'description' => __('This controls the description which the user sees during checkout.', 'klp-payments'),
-                'default'     => __('Enjoy ease of payment by splitting cost and paying in four installments.', 'klp-payments'),
+                'default'     => __('Enjoy ease of payment by splitting cost and paying in four instalments with Klump.', 'klp-payments'),
             ],
             'test_mode'                     => [
                 'title'       => __('Test mode', 'klp-payments'),
@@ -243,11 +241,14 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $product   = wc_get_product($item->get_product_id());
                 $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
 
+                $quantity = $item->get_quantity();
+                $unit_price = (($item->get_subtotal() + $item->get_subtotal_tax()) * $quantity) / $quantity;
+
                 $order_item = [
                     'item_url'   => $product->get_permalink(),
                     'name'       => $item->get_name(),
-                    'unit_price' => ($item->get_subtotal() / $item->get_quantity()),
-                    'quantity'   => $item->get_quantity(),
+                    'unit_price' => round($unit_price),
+                    'quantity'   => $quantity,
                 ];
 
                 if ($image_url) {
