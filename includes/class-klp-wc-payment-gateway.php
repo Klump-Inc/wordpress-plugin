@@ -241,11 +241,14 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $product   = wc_get_product($item->get_product_id());
                 $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
 
+                $quantity   = $item->get_quantity();
+                $unit_price = (($item->get_subtotal() + $item->get_subtotal_tax()) * $quantity) / $quantity;
+
                 $order_item = [
                     'item_url'   => $product->get_permalink(),
                     'name'       => $item->get_name(),
-                    'unit_price' => ($item->get_subtotal() / $item->get_quantity()),
-                    'quantity'   => $item->get_quantity(),
+                    'unit_price' => round($unit_price),
+                    'quantity'   => $quantity,
                 ];
 
                 if ($image_url) {
