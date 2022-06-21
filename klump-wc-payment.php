@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Klump WC Payment Gateway
+ * Klump WC Buy Now, Pay Later
  *
  * @package           KlumpPayment
  * @author            Klump Developers
@@ -10,9 +10,9 @@ declare(strict_types=1);
  * @license           GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name:       Klump WC Payment Gateway
+ * Plugin Name:       Klump WC Buy Now, Pay Later
  * Plugin URI:        https://useklump.com/
- * Description:       Payment gateway for Klump BNPL.
+ * Description:       Buy Now, Pay Later (BNPL) plugin for Klump.
  * Version:           1.0.4
  * Requires at least: 5.2
  * Requires PHP:      7.2

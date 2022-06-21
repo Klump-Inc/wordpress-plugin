@@ -88,7 +88,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'title'       => __('Title', 'klp-payments'),
                 'type'        => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'klp-payments'),
-                'default'     => __('Pay in 4 instalments - Klump', 'klp-payments'),
+                'default'     => __('Pay in 4 instalments - Klump BNPL', 'klp-payments'),
                 'desc_tip'    => true,
             ],
             'description'                   => [
