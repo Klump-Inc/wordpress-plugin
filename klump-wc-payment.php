@@ -13,7 +13,7 @@ declare(strict_types=1);
  * Plugin Name:       Klump WC Buy Now, Pay Later
  * Plugin URI:        https://useklump.com/
  * Description:       Buy Now, Pay Later (BNPL) plugin for Klump.
- * Version:           1.0.5
+ * Version:           1.1.0
  * Requires at least: 5.2
  * Requires PHP:      7.2
  * WC requires at least: 5.0
