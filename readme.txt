@@ -4,7 +4,7 @@ Donate link: null
 Tags: klump, useklump, woocommerce payment, bnpl, buy now pay later, payment gateway, pay by instalments, africa bnpl
 Requires at least: 5.8
 Tested up to: 6.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
