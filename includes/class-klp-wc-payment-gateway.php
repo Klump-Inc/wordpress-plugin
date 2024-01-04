@@ -229,7 +229,6 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $email         = method_exists($order, 'get_billing_email') ? $order->get_billing_email() : $order->billing_email;
             $amount        = $order->get_total();
             $txnref        = 'KLP_' . $order_id . '_' . time();
-            $txnref        = filter_var($txnref, FILTER_SANITIZE_STRING);
             $currency      = method_exists($order, 'get_currency') ? $order->get_currency() : $order->order_currency;
             $the_order_key = method_exists($order, 'get_order_key') ? $order->get_order_key() : $order->order_key;
             $firstname     = $order->get_billing_first_name();
