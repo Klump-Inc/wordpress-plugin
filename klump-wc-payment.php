@@ -13,11 +13,9 @@ declare(strict_types=1);
  * Plugin Name:       Klump WC Buy Now, Pay Later
  * Plugin URI:        https://useklump.com/
  * Description:       Buy Now, Pay Later (BNPL) plugin for Klump.
- * Version:           1.2.0
- * Requires at least: 5.2
- * Requires PHP:      7.4
- * WC requires at least: 6.3
- * WC tested up to: 8.4.0
+ * Version:           1.2.1
+ * WC requires at least: 7.0
+ * WC tested up to:   8.9.3
  * Author:            Klump Developers
  * Author URI:        https://useklump.com/developers
  * Text Domain:       klp-payments
@@ -31,7 +29,7 @@ if (!defined('ABSPATH')) {
 
 define('KLP_WC_PLUGIN_FILE', __FILE__);
 define('KLP_WC_SDK_URL', 'https://js.useklump.com/klump.js');
-define('KLP_WC_SDK_VERIFICATION_URL', 'https://api.useklump.com/v1/transactions/');
+define('KLP_WC_SDK_VERIFICATION_URL', 'https://staging-api.useklump.com/v1/transactions/');
 
 function klp_wc_payment_init()
 {
@@ -43,6 +41,8 @@ function klp_wc_payment_init()
     require_once __DIR__ . '/includes/class-klp-wc-payment-gateway.php';
 
     add_filter('woocommerce_payment_gateways', 'klp_wc_add_payment_gateway', 99);
+
+    add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'klp_wc_plugin_action_links');
 }
 
 add_action('plugins_loaded', 'klp_wc_payment_init', 99);
@@ -59,8 +59,6 @@ function klp_wc_plugin_action_links(array $links): array
 
     return $links;
 }
-
-add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'klp_wc_plugin_action_links');
 
 /**
  * Display a notice if WooCommerce is not installed
@@ -80,3 +78,20 @@ function klp_wc_add_payment_gateway(array $gateways): array
     $gateways[] = 'KLP_WC_Payment_Gateway';
     return $gateways;
 }
+
+/**
+ * Registers WooCommerce Blocks integration.
+ */
+function klp_wc_payment_gateway_woocommerce_block_support() {
+    if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+        require_once __DIR__ . '/includes/class-klp-wc-payment-gateway-blocks-support.php';
+
+        add_action(
+            'woocommerce_blocks_payment_method_type_registration',
+            static function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+                $payment_method_registry->register( new KLP_WC_Payment_Gateway_Blocks_Support() );
+            }
+        );
+    }
+}
+add_action( 'woocommerce_blocks_loaded', 'klp_wc_payment_gateway_woocommerce_block_support' );

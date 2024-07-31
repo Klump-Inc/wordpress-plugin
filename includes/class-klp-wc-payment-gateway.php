@@ -69,6 +69,11 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
     }
 
+    public function is_active()
+    {
+        return $this->enabled === 'yes';
+    }
+
     /**
      * Gateway settings fields and default values
      * @return void
@@ -425,8 +430,14 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
                         WC()->cart->empty_cart();
                     }
-                } elseif ($order) {
-                    $order->update_status('failed', __('Payment was declined by Klump.', 'klp-payments'));
+                } else {
+                    $failed_notice = 'Payment was declined by Klump.';
+
+                    $order->update_status('failed', __($failed_notice, 'klp-payments'));
+
+                    wc_add_notice( $failed_notice, 'error' );
+
+                    do_action( 'klp_wc_gateway_process_payment_error', $failed_notice, $order );
                 }
             }
 
