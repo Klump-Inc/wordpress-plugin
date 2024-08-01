@@ -28,8 +28,9 @@ if ( ! defined('ABSPATH')) {
 }
 
 define('KLP_WC_PLUGIN_FILE', __FILE__);
-define('KLP_WC_SDK_URL', 'https://js.useklump.com/klump.js');
-define('KLP_WC_SDK_VERIFICATION_URL', 'https://api.useklump.com/v1/transactions/');
+// @todo Note: URLs are for demo purposes only, update to production before deployment
+define('KLP_WC_SDK_URL', 'https://staging-js.useklump.com/klump.js');
+define('KLP_WC_SDK_VERIFICATION_URL', 'https://staging-api.useklump.com/v1/transactions/');
 
 function klp_wc_payment_init()
 {

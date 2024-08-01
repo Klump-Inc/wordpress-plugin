@@ -447,7 +447,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
                         WC()->cart->empty_cart();
                     }
-                } else {
+                } else if ($order) {
                     $failed_notice = 'Payment was declined by Klump.';
 
                     $order->update_status('failed', __($failed_notice, 'klp-payments'));
