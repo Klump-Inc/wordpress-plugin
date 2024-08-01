@@ -1,60 +1,40 @@
-// const settings = window.wc.wcSettings.getSetting( 'woocommerce_klump_settings', {} );
-// const label = window.wp.htmlEntities.decodeEntities( settings.title ) || window.wp.i18n.__( 'Klump', 'wc-phonepe' );
-//
-// const Content = () => {
-//   return window.wp.htmlEntities.decodeEntities( settings.description || '' );
-// };
-//
-// const Block_Gateway = {
-//   name: 'klump',
-//   label: label,
-//   content: Object( window.wp.element.createElement )( Content, null ),
-//   edit: Object( window.wp.element.createElement )( Content, null ),
-//   canMakePayment: () => true,
-//   ariaLabel: label,
-//   supports: {
-// 	features: settings.supports,
-//   },
-// };
-//
-// window.wc.wcBlocksRegistry.registerPaymentMethod( Block_Gateway );
-
-// Pay in 4 instalments - Klump BNPL (logo)
-
 (() => {
   "use strict";
-  const e = window.React,
-      t = window.wc.wcBlocksRegistry,
-      l = window.wc.wcSettings,
-      a = window.wp.i18n,
-      i = window.wp.htmlEntities,
-      s = (0, a.__)("Klump ", "klump"),
-      r = ({ title: e }) => (0, i.decodeEntities)(e) || s,
-      o = ({ description: e }) => (0, i.decodeEntities)(e || ""),
-      n = ({ logoUrls: t, label: l }) =>
-          (0, e.createElement)(
+  const react = window.React,
+      registry = window.wc.wcBlocksRegistry,
+      html = window.wp.htmlEntities,
+      s = (0, window.wp.i18n.__)("Klump ", "klump"),
+      titleContent = ({ title }) => (0, html.decodeEntities)(title) || s,
+      descriptionContent = ({ description }) => (0, html.decodeEntities)(description || ""),
+      n = ({ logoUrls, label }) =>
+          (0, react.createElement)(
               "div",
               { style: { display: "flex", flexDirection: "row", gap: "0.5rem", flexWrap: "wrap" } },
-              t.map((t, a) => (0, e.createElement)("img", { key: a, src: t, alt: l }))
+              logoUrls.map((img, index) => (0, react.createElement)("img", { key: index, src: img, alt: label }))
           ),
-      c = (0, l.getSetting)("klump_data", {}),
-      d = r({ title: c.title }),
-      w = {
+      settings = (0, window.wc.wcSettings.getSetting)("klump_data", {}),
+      label = titleContent({ title: settings.title }),
+      blockGateway = {
         name: "klump",
-        label: (0, e.createElement)(
-            ({ logoUrls: t, title: l }) =>
-                (0, e.createElement)(
-                    e.Fragment,
+        label: (0, react.createElement)(
+            ({ logoUrls, title }) =>
+                (0, react.createElement)(
+                    react.Fragment,
                     null,
-                    (0, e.createElement)("div", { style: { display: "flex", flexDirection: "row", gap: "0.5rem" } }, (0, e.createElement)("div", null, r({ title: l })), (0, e.createElement)(n, { logoUrls: t, label: r({ title: l }) }))
+                    (0, react.createElement)(
+                        "div",
+                        { style: { display: "flex", flexDirection: "row", gap: "0.5rem" } },
+                        (0, react.createElement)("div", null, titleContent({ title: title })),
+                        (0, react.createElement)(n, { logoUrls: logoUrls, label: titleContent({ title: title }) })
+                    )
                 ),
-            { logoUrls: c.logo_urls, title: d }
+            { logoUrls: settings.logo_urls, title: label }
         ),
-        content: (0, e.createElement)(o, { description: c.description }),
-        edit: (0, e.createElement)(o, { description: c.description }),
+        content: (0, react.createElement)(descriptionContent, { description: settings.description }),
+        edit: (0, react.createElement)(descriptionContent, { description: settings.description }),
         canMakePayment: () => true,
-        ariaLabel: d,
-        supports: { features: c.supports },
+        ariaLabel: label,
+        supports: { features: settings.supports },
       };
-  (0, t.registerPaymentMethod)(w);
+  (0, registry.registerPaymentMethod)(blockGateway);
 })();
