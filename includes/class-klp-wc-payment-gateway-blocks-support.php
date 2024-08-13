@@ -73,24 +73,4 @@ final class KLP_WC_Payment_Gateway_Blocks_Support extends AbstractPaymentMethodT
             'logo_urls'   => [$this->gateway->icon],
         ];
     }
-
-    /**
-     * Add failed payment notice to the payment details.
-     *
-     * @param PaymentContext $context Holds context for the payment.
-     * @param PaymentResult $result Result object for the payment.
-     */
-    public function failed_payment_notice(PaymentContext $context, PaymentResult &$result)
-    {
-        if ('klump' === $context->payment_method) {
-            add_action(
-                'klp_wc_gateway_process_payment_error',
-                function ($failed_notice) use (&$result) {
-                    $payment_details                 = $result->payment_details;
-                    $payment_details['errorMessage'] = wp_strip_all_tags($failed_notice);
-                    $result->set_payment_details($payment_details);
-                }
-            );
-        }
-    }
 }

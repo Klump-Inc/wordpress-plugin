@@ -13,9 +13,12 @@ declare(strict_types=1);
  * Plugin Name:       Klump WC Buy Now, Pay Later
  * Plugin URI:        https://useklump.com/
  * Description:       Buy Now, Pay Later (BNPL) plugin for Klump.
- * Version:           1.3.0
- * WC requires at least: 7.0
- * WC tested up to:   8.9.3
+ * Version:           1.3.1
+ * Requires at least: 6.2
+ * Requires PHP:      7.4
+ * Requires Plugins: woocommerce
+ * WC requires at least: 8.0
+ * WC tested up to:   9.1
  * Author:            Klump Developers
  * Author URI:        https://useklump.com/developers
  * Text Domain:       klp-payments
@@ -28,9 +31,8 @@ if ( ! defined('ABSPATH')) {
 }
 
 define('KLP_WC_PLUGIN_FILE', __FILE__);
-// @todo Note: URLs are for demo purposes only, update to production before deployment
-define('KLP_WC_SDK_URL', 'https://staging-js.useklump.com/klump.js');
-define('KLP_WC_SDK_VERIFICATION_URL', 'https://staging-api.useklump.com/v1/transactions/');
+define('KLP_WC_SDK_URL', 'https://js.useklump.com/klump.js');
+define('KLP_WC_SDK_VERIFICATION_URL', 'https://api.useklump.com/v1/transactions/');
 
 function klp_wc_payment_init()
 {
