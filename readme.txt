@@ -50,7 +50,7 @@ Ensure the following plugins are already installed on your site:
 
 = Klump Configuration Reference =
 *   __Enable/Disable__ - Check this checkbox to Enable "Pay with Klump" on your store's checkout page
-*   __Title__ - This is what users will see on the checkout page. The default is "Pay in 4 instalments - Klump" but you can change this to better reflect how you communicate with your customers.
+*   __Title__ - This is what users will see on the checkout page. The default is "Pay in Instalments - Klump" but you can change this to better reflect how you communicate with your customers.
 *   __Description__ - This controls the message that appears under the payment fields on the checkout page. You can change the default description to describe in your own words the benefit of Klump to your customers.
 *   __Test Mode__ - Check this to enable test mode. Test mode requires test public and secret key and it allows you to see Klump in action before going live to start receiving real payments from your customers.
 *   __API Keys__ - Klump requires public and private API keys for both test mode and live mode. You can obtain them from your Klump merchant dashboard.
