@@ -28,7 +28,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         $this->has_fields         = false; // for custom credit card form
         $this->title              = 'Pay with Klump'; // vertical tab title
         $this->method_title       = 'Pay with Klump'; // payment method name
-        $this->method_description = 'Use Klump to buy today, and pay in 4 equal instalments over 3 months! Businesses accept payments and increase conversion rate and revenue. The Easy Life! Try it now.'; // payment method description
+        $this->method_description = 'Use Klump to buy today, and Pay in Instalments over several months! Businesses accept payments and increase conversion rate and revenue. The Easy Life! Try it now.'; // payment method description
 
         $this->supports = ['products'];
 
@@ -94,7 +94,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'title'       => __('Title', 'klp-payments'),
                 'type'        => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'klp-payments'),
-                'default'     => __('Pay in 4 instalments - Klump BNPL', 'klp-payments'),
+                'default'     => __('Pay in Instalments - Klump BNPL', 'klp-payments'),
                 'desc_tip'    => true,
             ],
             'description'                   => [
