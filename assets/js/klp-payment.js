@@ -1,7 +1,7 @@
 const payload = {
     publicKey: klp_payment_params.primary_key,
     data: {
-        amount: klp_payment_params.amount,
+        amount: parseFloat(klp_payment_params.amount, 10),
         currency: klp_payment_params.currency,
         merchant_reference: klp_payment_params.txnref,
         meta_data: {
@@ -27,7 +27,7 @@ const payload = {
 }
 
 if (klp_payment_params.shipping_fee !== '0' && klp_payment_params.shipping_fee > 0) {
-    payload.data.shipping_fee = klp_payment_params.shipping_fee;
+    payload.data.shipping_fee = parseFloat(klp_payment_params.shipping_fee, 10);
 }
 
 document.getElementById('klump__checkout').addEventListener('click', function () {
