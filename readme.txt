@@ -118,6 +118,9 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 = 1.3.2 - August 21, 2024 =
 *   Fix shipping price error
 
+= 1.3.3 - August 26, 2024 =
+*   Prefill user form on checkout
+
 == Upgrade Notice ==
 
 = 1.0.1 =
@@ -151,3 +154,6 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 
 = 1.3.2 =
 *   Fix shipping price error
+
+= 1.3.3 =
+*   Prefill user form on checkout

@@ -102,7 +102,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'type'        => 'textarea',
                 'description' => __('This controls the description which the user sees during checkout.',
                     'klp-payments'),
-                'default'     => __('Enjoy ease of payment by splitting cost and paying in four instalments with Klump.',
+                'default'     => __('Enjoy ease of payment by splitting cost and paying in instalments with Klump.',
                     'klp-payments'),
             ],
             'test_mode'                     => [
@@ -244,6 +244,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $the_order_key = method_exists($order, 'get_order_key') ? $order->get_order_key() : $order->order_key;
             $firstname     = $order->get_billing_first_name();
             $lastname      = $order->get_billing_last_name();
+            $phone         = $order->get_billing_phone();
             $shipping_fee  = $order->get_shipping_total();
 
             $order_items = [];
@@ -280,7 +281,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     'cb_url',
                     'order_items',
                     'shipping_fee',
-                    'order_id'
+                    'order_id',
+                    'phone'
                 );
             }
 

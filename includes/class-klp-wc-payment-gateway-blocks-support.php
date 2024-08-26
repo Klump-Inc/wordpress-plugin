@@ -68,7 +68,7 @@ final class KLP_WC_Payment_Gateway_Blocks_Support extends AbstractPaymentMethodT
     public function get_payment_method_data()
     {
         return [
-            'title'       => $this->gateway->title,
+            'title'       => 'Pay in Instalments',
             'description' => $this->gateway->method_description,
             'logo_urls'   => [$this->gateway->icon],
         ];
