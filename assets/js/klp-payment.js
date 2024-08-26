@@ -6,7 +6,8 @@ const payload = {
         merchant_reference: klp_payment_params.txnref,
         meta_data: {
             customer: klp_payment_params.firstname + ' ' + klp_payment_params.lastname,
-            email: klp_payment_params.email
+            email: klp_payment_params.email,
+            order_id: klp_payment_params.order_id,
         },
         items: klp_payment_params.order_items,
         redirect_url: klp_payment_params.cb_url,
@@ -23,6 +24,27 @@ const payload = {
     onOpen: (data) => {
     },
     onClose: (data) => {
+    }
+}
+
+if (klp_payment_params.firstname) {
+    payload.data.first_name = klp_payment_params.firstname;
+}
+
+if (klp_payment_params.lastname) {
+    payload.data.last_name = klp_payment_params.lastname;
+}
+
+if (klp_payment_params.email) {
+    payload.data.email = klp_payment_params.email;
+}
+
+if (klp_payment_params.phone) {
+    if (klp_payment_params.phone.length > 11) {
+        payload.data.phone = klp_payment_params.phone.substring(klp_payment_params.phone.length - 10);
+        payload.data.phone = '0' + payload.data.phone;
+    } else {
+        payload.data.phone = klp_payment_params.phone;
     }
 }
 
