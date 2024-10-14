@@ -67,6 +67,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         if ( ! $this->supportCurrency()) {
             $this->enabled = 'no';
         }
+
+        add_action('before_woocommerce_init', [$this, 'declare_woocommerce_compatibility']);
     }
 
     public function is_active()
@@ -236,8 +238,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         $payment_params = [];
 
         if (get_query_var('order-pay')) {
-            $email         = method_exists($order,
-                'get_billing_email') ? $order->get_billing_email() : $order->billing_email;
+            $email         = method_exists($order, 'get_billing_email') ? $order->get_billing_email() : $order->billing_email;
             $amount        = $order->get_total();
             $txnref        = 'KLP_' . $order_id . '_' . time();
             $currency      = method_exists($order, 'get_currency') ? $order->get_currency() : $order->order_currency;
@@ -286,7 +287,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 );
             }
 
-            update_post_meta($order_id, '_klp_payment_txn_ref', $txnref);
+            $order->update_meta_data( '_klp_payment_txn_ref', $txnref );
+            $order->save();
         }
 
         wp_localize_script('klp_js', 'klp_payment_params', $payment_params);
@@ -392,7 +394,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     if ($payment_currency !== $order_currency || $amount_paid < $order_total) {
                         if ($amount_paid < $order_total) {
                             $order->update_status('on-hold', '');
-                            add_post_meta($order_id, '_transaction_id', $klp_merchant_reference, true);
+                            $order->add_meta_data( '_transaction_id', $klp_merchant_reference, true );
 
                             $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment transaction was successful, but the amount paid is not the same as the total order amount.%2$sYour order is currently on hold.%3$sKindly contact us for more information regarding your order and payment status.',
                                 'klp-payments'), '<br />', '<br />', '<br />');
@@ -418,7 +420,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
                             $order->update_status('on-hold', '');
 
-                            update_post_meta($order_id, '_transaction_id', $klp_merchant_reference);
+                            $order->update_meta_data( '_transaction_id', $klp_merchant_reference );
 
                             $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.',
                                 'klp-payments'), '<br />', '<br />', '<br />');
@@ -460,6 +462,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 }
             }
 
+            $order->save();
+
             wp_redirect($this->get_return_url($order));
             exit;
         }
@@ -499,7 +503,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 exit;
             }
 
-            $klp_txn_ref = get_post_meta($order_id, '_klp_payment_txn_ref', true);
+            $klp_txn_ref = $order->get_meta('_klp_payment_txn_ref', true);
 
             if ($klp_merchant_reference !== $klp_txn_ref) {
                 exit;
@@ -520,7 +524,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 if ($amount_paid < $order_total) {
                     $order->update_status('on-hold', '');
 
-                    add_post_meta($order_id, '_transaction_id', $klp_merchant_reference, true);
+                    $order->add_meta_data( '_transaction_id', $klp_merchant_reference, true );
 
                     $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment transaction was successful, but the amount paid is not the same as the total order amount.%2$sYour order is currently on hold.%3$sKindly contact us for more information regarding your order and payment status.',
                         'klp-payments'), '<br />', '<br />', '<br />');
@@ -548,7 +552,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
                     $order->update_status('on-hold', '');
 
-                    update_post_meta($order_id, '_transaction_id', $klp_merchant_reference);
+                    $order->update_meta_data( '_transaction_id', $klp_merchant_reference );
 
                     $notice      = sprintf(__('Thank you for shopping with us.%1$sYour payment was successful, but the payment currency is different from the order currency.%2$sYour order is currently on-hold.%3$sKindly contact us for more information regarding your order and payment status.',
                         'klp-payments'), '<br />', '<br />', '<br />');
@@ -578,6 +582,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 }
                 WC()->cart->empty_cart();
             }
+            $order->save();
         }
     }
 
@@ -592,5 +597,11 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
 
         return true;
+    }
+
+    public function declare_woocommerce_compatibility() {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+        }
     }
 }
