@@ -52,8 +52,10 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         add_action('admin_notices', [$this, 'admin_notices']);
 
         add_action('woocommerce_receipt_' . $this->id, [$this, 'receipt_page']);
+        // verify payment route
         add_action('woocommerce_api_klp_wc_payment_gateway', [$this, 'klp_verify_payment']);
 
+        // webhook route
         add_action('woocommerce_api_klp_wc_payment_webhook', [$this, 'klp_webhook']);
 
         if (is_admin()) {
@@ -356,6 +358,17 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         if ($reference && $order_id) {
             $order = wc_get_order($order_id);
 
+            if ( ! $order) {
+                $failed_notice = 'Unable to process payment, kindly try again.';
+
+                wc_add_notice($failed_notice, 'error');
+
+                do_action('klp_wc_gateway_process_payment_error', $failed_notice, $order);
+
+                wp_redirect(wc_get_page_permalink('cart'));
+                exit;
+            }
+
             $verifyUrl = KLP_WC_SDK_VERIFICATION_URL . $reference . '/verify';
             $args      = [
                 'headers' => [
@@ -445,14 +458,18 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                         $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)',
                             'klp-payments'), $klp_merchant_reference));
 
-                        if ($this->is_autocomplete_order_enabled && 'successful' === $klp_status) {
-                            $order->update_status('completed');
+                        if ('successful' === $klp_status) {
+                            if ($this->is_autocomplete_order_enabled) {
+                                $order->update_status('completed');
+                            } else {
+                                $order->update_status('processing');
+                            }
                         }
-
-                        WC()->cart->empty_cart();
                     }
-                } else if ($order) {
-                    $failed_notice = 'Payment was declined by Klump.';
+
+                    WC()->cart->empty_cart();
+                } else {
+                    $failed_notice = 'Unable to process payment, kindly try again.';
 
                     $order->update_status('failed', __($failed_notice, 'klp-payments'));
 
@@ -460,9 +477,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 
                     do_action('klp_wc_gateway_process_payment_error', $failed_notice, $order);
                 }
-            }
 
-            $order->save();
+                $order->save();
+            }
 
             wp_redirect($this->get_return_url($order));
             exit;
@@ -478,13 +495,13 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
      */
     public function klp_webhook(): void
     {
-        if ( ! array_key_exists('x-klump-signature', $_SERVER) || (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST')) {
+        if ( ! array_key_exists('HTTP_X_KLUMP_SIGNATURE', $_SERVER) || (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST')) {
             exit;
         }
 
         $klump_event_payload = json_decode(file_get_contents('php://input'), true);
 
-        if ($_SERVER['x-klump-signature'] !== hash_hmac('sha512', $klump_event_payload, $this->secret_key)) {
+        if ($_SERVER['HTTP_X_KLUMP_SIGNATURE'] !== hash_hmac('sha512', file_get_contents('php://input'), $this->secret_key)) {
             exit;
         }
 
@@ -574,13 +591,13 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     WC()->cart->empty_cart();
                 }
             } else {
-//                $order->payment_complete($klp_merchant_reference);
-//                $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
+                $order->add_order_note(sprintf(__('Payment via Klump successful (Transaction Reference: %s)', 'klp-payments'), $klp_merchant_reference));
 
                 if ($this->is_autocomplete_order_enabled) {
                     $order->update_status('completed');
+                } else {
+                    $order->payment_complete($klp_merchant_reference);
                 }
-                WC()->cart->empty_cart();
             }
             $order->save();
         }

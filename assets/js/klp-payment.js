@@ -15,7 +15,11 @@ const payload = {
         redirect_url: klp_payment_params.cb_url,
     },
     onSuccess: (data) => {
-        transactionComplete(data.data.data.data)
+        transactionComplete({
+            order_id: klp_payment_params.order_id,
+            cb_url: klp_payment_params.cb_url,
+            ...data.data.data.data
+        })
         return data;
     },
     onError: (data) => {
@@ -59,16 +63,14 @@ document.getElementById('klump__checkout').addEventListener('click', function ()
 });
 
 function transactionComplete(data) {
-    const fields = {
-        order_id: klp_payment_params.order_id,
-        ...data
-    }
-
     const form = document.createElement("form");
     form.setAttribute("method", "POST");
-    form.setAttribute("action", klp_payment_params.cb_url);
+    form.setAttribute("action", data.cb_url);
 
-    for (let item in fields) {
+    for (let item in data) {
+        if (item === 'cb_url') {
+            continue;
+        }
         const field = document.createElement("input");
         field.setAttribute("type", "hidden");
         field.setAttribute("name", item);
