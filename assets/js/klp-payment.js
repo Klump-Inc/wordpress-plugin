@@ -9,7 +9,7 @@ const payload = {
             email: klp_payment_params.email,
             order_id: klp_payment_params.order_id,
             klump_plugin_source: 'woocommerce',
-            klump_plugin_version: '1.3.3',
+            klump_plugin_version: '1.3.4',
         },
         items: klp_payment_params.order_items,
         redirect_url: klp_payment_params.cb_url,
