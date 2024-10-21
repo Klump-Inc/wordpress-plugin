@@ -251,6 +251,15 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $shipping_fee  = $order->get_shipping_total();
 
             $order_items = [];
+
+            // Calculate total coupon amount
+            $total_coupon_amount = 0;
+            foreach ($order->get_items('coupon') as $coupon_item) {
+                $total_coupon_amount += $coupon_item->get_discount();
+            }
+
+            $coupon_amount_per_item = $total_coupon_amount / count($order->get_items());
+
             foreach ($order->get_items() as $key => $item) {
                 $product   = wc_get_product($item->get_product_id());
                 $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
@@ -261,7 +270,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $order_item = [
                     'item_url'   => $product->get_permalink(),
                     'name'       => $item->get_name(),
-                    'unit_price' => $unit_price,
+                    'unit_price' => $unit_price - $coupon_amount_per_item,
                     'quantity'   => $quantity,
                 ];
 
