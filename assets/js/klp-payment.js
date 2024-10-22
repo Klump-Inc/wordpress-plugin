@@ -4,6 +4,7 @@ const payload = {
         amount: parseFloat(klp_payment_params.amount, 10),
         currency: klp_payment_params.currency,
         merchant_reference: klp_payment_params.txnref,
+        discount: klp_payment_params.discount,
         meta_data: {
             customer: klp_payment_params.firstname + ' ' + klp_payment_params.lastname,
             email: klp_payment_params.email,

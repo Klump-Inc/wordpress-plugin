@@ -69,8 +69,6 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         if ( ! $this->supportCurrency()) {
             $this->enabled = 'no';
         }
-
-        add_action('before_woocommerce_init', [$this, 'declare_woocommerce_compatibility']);
     }
 
     public function is_active()
@@ -253,12 +251,10 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $order_items = [];
 
             // Calculate total coupon amount
-            $total_coupon_amount = 0;
+            $discount = 0;
             foreach ($order->get_items('coupon') as $coupon_item) {
-                $total_coupon_amount += $coupon_item->get_discount();
+                $discount += $coupon_item->get_discount();
             }
-
-            $coupon_amount_per_item = $total_coupon_amount / count($order->get_items());
 
             foreach ($order->get_items() as $key => $item) {
                 $product   = wc_get_product($item->get_product_id());
@@ -270,7 +266,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 $order_item = [
                     'item_url'   => $product->get_permalink(),
                     'name'       => $item->get_name(),
-                    'unit_price' => $unit_price - $coupon_amount_per_item,
+                    'unit_price' => $unit_price,
                     'quantity'   => $quantity,
                 ];
 
@@ -294,7 +290,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     'order_items',
                     'shipping_fee',
                     'order_id',
-                    'phone'
+                    'phone',
+                    'discount'
                 );
             }
 
@@ -623,11 +620,5 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
 
         return true;
-    }
-
-    public function declare_woocommerce_compatibility() {
-        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
-            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
-        }
     }
 }
