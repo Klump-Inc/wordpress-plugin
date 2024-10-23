@@ -69,8 +69,6 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         if ( ! $this->supportCurrency()) {
             $this->enabled = 'no';
         }
-
-        add_action('before_woocommerce_init', [$this, 'declare_woocommerce_compatibility']);
     }
 
     public function is_active()
@@ -251,6 +249,13 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $shipping_fee  = $order->get_shipping_total();
 
             $order_items = [];
+
+            // Calculate total coupon amount
+            $discount = 0;
+            foreach ($order->get_items('coupon') as $coupon_item) {
+                $discount += $coupon_item->get_discount();
+            }
+
             foreach ($order->get_items() as $key => $item) {
                 $product   = wc_get_product($item->get_product_id());
                 $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
@@ -285,7 +290,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                     'order_items',
                     'shipping_fee',
                     'order_id',
-                    'phone'
+                    'phone',
+                    'discount'
                 );
             }
 
@@ -614,11 +620,5 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
 
         return true;
-    }
-
-    public function declare_woocommerce_compatibility() {
-        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
-            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
-        }
     }
 }
