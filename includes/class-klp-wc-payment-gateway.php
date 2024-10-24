@@ -229,9 +229,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
 
         // payment processor JS that allows to get a token
-        wp_enqueue_script('klp_payment_js', KLP_WC_SDK_URL, [], '1.0.0', true);
+        wp_enqueue_script('klp_payment_js', KLP_WC_SDK_URL, [], null, true);
 
-        wp_enqueue_script('klp_js', plugins_url('assets/js/klp-payment.js', KLP_WC_PLUGIN_FILE), [], '1.0.0', true);
+        wp_enqueue_script('klp_js', plugins_url('assets/js/klp-payment.js', KLP_WC_PLUGIN_FILE), [], null, true);
 
         $cb_url = WC()->api_request_url('KLP_WC_Payment_Gateway');
 
