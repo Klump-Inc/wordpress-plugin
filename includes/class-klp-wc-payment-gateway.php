@@ -72,14 +72,24 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $this->enabled = 'no';
         }
 
-        add_action('woocommerce_admin_field_custom_button', [$this, 'display_sync_button']);
-        add_action('woocommerce_settings_page_display', [$this, 'add_sync_script']);
-
-        add_action('save_post_product', ['Product_Sync', 'sync_product_on_save'], 10, 3);
-        add_action('woocommerce_order_status_completed', ['Product_Sync', 'sync_products_on_order_complete']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']); // Enqueue the JS script
+        add_action('woocommerce_settings_checkout', [$this, 'add_sync_button_to_settings'], 20);
 
         // Add the AJAX action for manual sync
         add_action('wp_ajax_klp_sync_products', ['Product_Sync', 'sync_all_products']);
+
+		// Auto sync products on update and purchase
+        add_action('save_post_product', ['Product_Sync', 'sync_product_on_save'], 10, 3);
+        add_action('woocommerce_order_status_completed', ['Product_Sync', 'sync_products_on_order_complete']);
+    }
+
+    public function enqueue_admin_scripts($hook)
+    {
+        if ('woocommerce_page_wc-settings' !== $hook) {
+            return;
+        }
+
+        wp_enqueue_script('klp-sync-products', plugins_url('assets/js/klp-sync-products.js', KLP_WC_PLUGIN_FILE), ['jquery'], null, true);
     }
 
     public function is_active()
@@ -172,65 +182,26 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'default'     => 'yes',
                 'desc_tip'    => false,
             ],
-//            'sync_products' => [
-//                'title'       => __(' ', 'klp-payments'), // Leave title empty to avoid extra label
-//                'type'        => 'custom_button', // Matches the custom field type
-//                'description' => '',
-//            ],
-//            'sync_products' => [
-//                'title'       => __('Sync Products', 'klp-payments'),
-//                'button_text' => __('Sync Products Now', 'klp-payments'), // Add this line
-//                'type'        => 'button',
-//                'description' => __('Sync products with the external server.', 'klp-payments'),
-//                'desc_tip'    => true,
-//                'custom_attributes' => ['onclick' => 'syncProductsWithExternalServer()'],
-//            ],
         ];
-
-//        add_action('woocommerce_admin_field_custom_button', [$this, 'display_sync_button']);
-//        add_action('admin_footer', [$this, 'add_sync_script']);
     }
 
     public function display_sync_button()
     {
         ?>
-		<tr valign="top">
-			<th scope="row" class="titledesc">
-				<label><?php _e('Sync Products', 'klp-payments'); ?></label>
-			</th>
-			<td class="forminp">
-				<button type="button" onclick="syncProductsWithExternalServer()" class="button-primary">
-                    <?php _e('Sync Products Now', 'klp-payments'); ?>
-				</button>
-				<p class="description"><?php _e('Sync products with the external server.', 'klp-payments'); ?></p>
-			</td>
-		</tr>
+		<h2><?php _e('Sync Products', 'klp-payments'); ?></h2>
+		<button type="button" onclick="syncProductsWithExternalServer()" class="button-primary">
+            <?php _e('Sync Products Now', 'klp-payments'); ?>
+		</button>
+		<p class="description"><?php _e('Sync products with the external server.', 'klp-payments'); ?></p>
         <?php
     }
 
-    public function add_sync_script()
+// Hook to add the sync button to the settings page
+    public function add_sync_button_to_settings()
     {
-        ?>
-        <script type="text/javascript">
-		  function syncProductsWithExternalServer() {
-			if (confirm("Are you sure you want to sync products with the external server?")) {
-			  jQuery.ajax({
-				url: ajaxurl,
-				type: 'POST',
-				data: {
-				  action: 'klp_sync_products'
-				},
-				success: function (response) {
-				  alert('Products synced successfully: ' + response.data);
-				},
-				error: function (error) {
-				  alert('Error syncing products: ' + error.responseText);
-				}
-			  });
-			}
-		  }
-        </script>
-        <?php
+        if (isset($_GET['section']) && $_GET['section'] === 'klump') {
+            $this->display_sync_button();
+        }
     }
 
     /**
