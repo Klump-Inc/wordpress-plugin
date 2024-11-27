@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once plugin_dir_path(__FILE__) . 'class-product-sync.php';
+
 class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 {
 
@@ -69,6 +71,15 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         if ( ! $this->supportCurrency()) {
             $this->enabled = 'no';
         }
+
+        add_action('woocommerce_admin_field_custom_button', [$this, 'display_sync_button']);
+        add_action('woocommerce_settings_page_display', [$this, 'add_sync_script']);
+
+        add_action('save_post_product', ['Product_Sync', 'sync_product_on_save'], 10, 3);
+        add_action('woocommerce_order_status_completed', ['Product_Sync', 'sync_products_on_order_complete']);
+
+        // Add the AJAX action for manual sync
+        add_action('wp_ajax_klp_sync_products', ['Product_Sync', 'sync_all_products']);
     }
 
     public function is_active()
@@ -161,7 +172,65 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'default'     => 'yes',
                 'desc_tip'    => false,
             ],
+//            'sync_products' => [
+//                'title'       => __(' ', 'klp-payments'), // Leave title empty to avoid extra label
+//                'type'        => 'custom_button', // Matches the custom field type
+//                'description' => '',
+//            ],
+//            'sync_products' => [
+//                'title'       => __('Sync Products', 'klp-payments'),
+//                'button_text' => __('Sync Products Now', 'klp-payments'), // Add this line
+//                'type'        => 'button',
+//                'description' => __('Sync products with the external server.', 'klp-payments'),
+//                'desc_tip'    => true,
+//                'custom_attributes' => ['onclick' => 'syncProductsWithExternalServer()'],
+//            ],
         ];
+
+//        add_action('woocommerce_admin_field_custom_button', [$this, 'display_sync_button']);
+//        add_action('admin_footer', [$this, 'add_sync_script']);
+    }
+
+    public function display_sync_button()
+    {
+        ?>
+		<tr valign="top">
+			<th scope="row" class="titledesc">
+				<label><?php _e('Sync Products', 'klp-payments'); ?></label>
+			</th>
+			<td class="forminp">
+				<button type="button" onclick="syncProductsWithExternalServer()" class="button-primary">
+                    <?php _e('Sync Products Now', 'klp-payments'); ?>
+				</button>
+				<p class="description"><?php _e('Sync products with the external server.', 'klp-payments'); ?></p>
+			</td>
+		</tr>
+        <?php
+    }
+
+    public function add_sync_script()
+    {
+        ?>
+        <script type="text/javascript">
+		  function syncProductsWithExternalServer() {
+			if (confirm("Are you sure you want to sync products with the external server?")) {
+			  jQuery.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: {
+				  action: 'klp_sync_products'
+				},
+				success: function (response) {
+				  alert('Products synced successfully: ' + response.data);
+				},
+				error: function (error) {
+				  alert('Error syncing products: ' + error.responseText);
+				}
+			  });
+			}
+		  }
+        </script>
+        <?php
     }
 
     /**
