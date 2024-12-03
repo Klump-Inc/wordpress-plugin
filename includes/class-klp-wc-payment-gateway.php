@@ -15,6 +15,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
     // Toggle autocomplete order mode
     public $is_autocomplete_order_enabled;
 
+	// Allow syncing products with Klump Commerce
+    public $enable_product_sync;
+
     // test mode
     public $test_mode;
 
@@ -45,6 +48,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         $this->show_klp_ads                  = 'yes' === $this->get_option('show_klp_ads');
         $this->remove_cancel_order_button    = 'yes' === $this->get_option('remove_cancel_order_button');
         $this->is_autocomplete_order_enabled = 'yes' === $this->get_option('is_autocomplete_order_enabled');
+        $this->enable_product_sync           = 'yes' === $this->get_option('enable_product_sync') && $this->get_option('secret_key');
 
         $this->test_mode = 'yes' === $this->get_option('test_mode');
 
@@ -79,8 +83,18 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         add_action('wp_ajax_klp_sync_products', ['Product_Sync', 'sync_all_products']);
 
 		// Auto sync products on update and purchase
-        add_action('save_post_product', ['Product_Sync', 'sync_product_on_save'], 10, 3);
-        add_action('woocommerce_order_status_completed', ['Product_Sync', 'sync_products_on_order_complete']);
+        add_action('save_post_product', [$this, 'handle_sync_product_on_save'], 10, 3);
+        add_action('woocommerce_order_status_completed', [$this, 'handle_sync_products_on_order_complete']);
+    }
+
+    public function handle_sync_product_on_save($post_id, $post, $update) {
+		if (!$this->enable_product_sync) return;
+        Product_Sync::sync_product_on_save($post_id, $post, $update);
+    }
+
+    public function handle_sync_products_on_order_complete($order_id) {
+		if (!$this->enable_product_sync) return;
+        Product_Sync::sync_products_on_order_complete($order_id);
     }
 
     public function enqueue_admin_scripts($hook)
@@ -145,11 +159,11 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'type'  => 'password',
             ],
             'public_key'                    => [
-                'title' => __('Live Public Key', 'klp-payments'),
+                'title' => __('Public Key', 'klp-payments'),
                 'type'  => 'text',
             ],
             'secret_key'                    => [
-                'title' => __('Live Private Key', 'klp-payments'),
+                'title' => __('Secret Key', 'klp-payments'),
                 'type'  => 'password',
             ],
             'webhook'                       => [
@@ -182,6 +196,14 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
                 'default'     => 'yes',
                 'desc_tip'    => false,
             ],
+            'enable_product_sync' => [
+                'title'       => __('Enable Products sync', 'klp-payments'),
+                'label'       => __('Enable syncing products with Klump', 'klp-payments'),
+                'type'        => 'checkbox',
+                'description' => __('Sync products with Klump Commerce', 'klp-payments'),
+                'default'     => 'no',
+                'desc_tip'    => false,
+            ],
         ];
     }
 
@@ -196,10 +218,10 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         <?php
     }
 
-// Hook to add the sync button to the settings page
+	// Hook to add the sync button to the settings page
     public function add_sync_button_to_settings()
     {
-        if (isset($_GET['section']) && $_GET['section'] === 'klump') {
+        if (isset($_GET['section']) && $_GET['section'] === 'klump' && $this->enable_product_sync) {
             $this->display_sync_button();
         }
     }

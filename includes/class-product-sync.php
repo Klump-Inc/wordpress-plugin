@@ -33,7 +33,11 @@ class Product_Sync
                     $variation_obj = new WC_Product_Variation($variation_id);
 
                     if (!$variation_obj->get_price()) continue;
-//                    if (!$variation_obj->get_stock_quantity()) continue;
+
+                    $quantity = $variation_obj->get_stock_quantity();
+                    if (null == $variation_obj->get_stock_quantity()) {
+                        $quantity = $variation_obj->get_stock_status() == 'instock' ? 1 : 0;
+                    }
 
                     // Process each variation as needed
                     $product_data[] = [
@@ -41,10 +45,10 @@ class Product_Sync
                         'product_id'   => $product->get_id(),
                         'variant_id'   => $variation_id,
                         'variant_name' => $variation_obj->get_name(),
-                        'quantity'     => $variation_obj->get_stock_quantity() || 0,
+                        'quantity'     =>  $quantity,
                         'image'        => wp_get_attachment_url($variation_obj->get_image_id()),
                         'is_published' => $product->get_status() === 'publish',
-                        'price'        => $variation_obj->get_price() || 0,
+                        'price'        => $variation_obj->get_price(),
                         'old_price'    => $variation_obj->get_regular_price() !== $variation_obj->get_price() ? $variation_obj->get_regular_price() : 0,
                         'description'  => $product->get_description(),
                         'sku'          => $product->get_sku(),
@@ -54,6 +58,13 @@ class Product_Sync
                 }
             }
 
+            if (!$product->get_price()) continue;
+
+            $quantity = $product->get_stock_quantity();
+            if (null == $product->get_stock_quantity()) {
+                $quantity = $product->get_stock_status() == 'instock' ? 1 : 0;
+            }
+
             if ($product->is_type('simple')) {
                 if (!$product->get_price()) continue;
                 $product_data[] = [
@@ -61,11 +72,11 @@ class Product_Sync
                     'product_id'   => $product->get_id(),
                     'variant_id'   => null,
                     'variant_name' => null,
-                    'quantity'     => $product->get_stock_quantity() || 0,
+                    'quantity'     => $quantity,
                     'image'        => wp_get_attachment_url($product->get_image_id()),
                     'is_published' => $product->get_status() === 'publish',
                     'price'        => $product->get_price(),
-                    'old_price'    => $product->get_regular_price() !== $product->get_price() ? $product->get_regular_price() : null,
+                    'old_price'    => $product->get_regular_price() !== $product->get_price() ? $product->get_regular_price() : 0,
                     'description'  => $product->get_description(),
                     'sku'          => $product->get_sku(),
                     'sub_category' => self::get_product_category($product),
