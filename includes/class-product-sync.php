@@ -8,7 +8,7 @@ class Product_Sync
     /**
      * Sync product data to the external server.
      *
-     * @param int $product_id Product ID.
+     * @param array $products
      */
     public static function sync_products_to_server(array $products): void
     {
