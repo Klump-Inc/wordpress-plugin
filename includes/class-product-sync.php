@@ -5,6 +5,16 @@ class Product_Sync
 {
     private const EXTERNAL_SERVER_URL = 'https://api.useklump.com/v1/commerce/products/sync';
 
+    private static $gateway_instance = null;
+
+    public static function get_gateway_instance()
+    {
+        if (self::$gateway_instance === null) {
+            self::$gateway_instance = new KLP_WC_Payment_Gateway();
+        }
+        return self::$gateway_instance;
+    }
+
     /**
      * Sync product data to the external server.
      *
@@ -12,6 +22,7 @@ class Product_Sync
      */
     public static function sync_products_to_server(array $products): void
     {
+        $gateway_instance = self::get_gateway_instance();
         $product_data = [];
 
         foreach ($products as $product) {
@@ -90,10 +101,12 @@ class Product_Sync
             return;
         }
 
-        $response = wp_remote_post(self::EXTERNAL_SERVER_URL . 's', [ // Plural 's' for bulk sync
+        $response = wp_remote_post(self::EXTERNAL_SERVER_URL, [
             'body'    => json_encode($product_data),
             'headers' => [
                 'Content-Type' => 'application/json',
+                'X-Klump-Signature' => hash_hmac('sha512', json_encode($product_data), $gateway_instance->get_option('test_secret_key')),  // Generate HMAC signature
+                'X-Klump-Public-Key' => $gateway_instance->get_option('public_key'),
             ],
         ]);
 
