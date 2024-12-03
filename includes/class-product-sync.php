@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 class Product_Sync
 {
-    private const EXTERNAL_SERVER_URL = 'https://rarely-in-sunbeam.ngrok-free.app/api/sync-product';
+    private const EXTERNAL_SERVER_URL = 'https://api.useklump.com/v1/commerce/products/sync';
 
     /**
      * Sync product data to the external server.
