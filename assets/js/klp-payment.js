@@ -62,6 +62,8 @@ if (klp_payment_params.discount && klp_payment_params.discount !== '0' && klp_pa
     payload.data.discount = parseFloat(klp_payment_params.discount, 10);
 }
 
+new Klump(payload);
+
 document.getElementById('klump__checkout').addEventListener('click', function () {
     const klump = new Klump(payload);
 });
