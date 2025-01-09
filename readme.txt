@@ -4,7 +4,7 @@ Donate link: null
 Tags: klump pay by instalments, useklump, woocommerce, buy now pay later bnpl, payment gateway
 Requires at least: 6.2
 Tested up to: 6.6
-Stable tag: 1.3.6
+Stable tag: 1.4.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -130,6 +130,13 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 = 1.3.6 - November 06, 2024 =
 *   Fix transaction items mismatch issue
 
+= 1.4.0 - December 13, 2024 =
+*  Add Klump Commerce products sync feature
+*  Launch modal on payment page automatically
+
+= 1.4.1 - January 9, 2025 =
+*  Klump Commerce products sync bug fixes
+
 == Upgrade Notice ==
 
 = 1.0.1 =
@@ -176,3 +183,10 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 
 = 1.3.6 =
 *  Fix transaction items mismatch issue
+
+= 1.4.0 =
+*  Add Klump Commerce products sync feature
+*  Launch modal on payment page automatically
+
+= 1.4.1 =
+*  Klump Commerce products sync bug fixes

@@ -105,7 +105,7 @@ class Product_Sync
             'body'    => json_encode($product_data),
             'headers' => [
                 'Content-Type' => 'application/json',
-                'X-Klump-Signature' => hash_hmac('sha512', json_encode($product_data), $gateway_instance->get_option('test_secret_key')),  // Generate HMAC signature
+                'X-Klump-Signature' => hash_hmac('sha512', json_encode($product_data), $gateway_instance->get_option('secret_key')),  // Generate HMAC signature
                 'X-Klump-Public-Key' => $gateway_instance->get_option('public_key'),
             ],
         ]);
