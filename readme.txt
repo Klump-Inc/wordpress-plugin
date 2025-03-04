@@ -4,7 +4,7 @@ Donate link: null
 Tags: klump pay by instalments, useklump, woocommerce, buy now pay later bnpl, payment gateway
 Requires at least: 6.2
 Tested up to: 6.6
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.txt
@@ -137,6 +137,9 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 = 1.4.1 - January 9, 2025 =
 *  Klump Commerce products sync bug fixes
 
+= 1.4.2 - March 4, 2025 =
+*  Add preview button on PDP
+
 == Upgrade Notice ==
 
 = 1.0.1 =
@@ -190,3 +193,6 @@ If you do not find Klump on WooCommerce payments tab on settings page, please ch
 
 = 1.4.1 =
 *  Klump Commerce products sync bug fixes
+
+= 1.4.2 =
+*  Add preview button on PDP

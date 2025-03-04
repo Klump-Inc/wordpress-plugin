@@ -68,6 +68,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, [$this, 'process_admin_options']);
         }
 
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_klump_scripts']);
         // Action hook to load custom JavaScript
         add_action('wp_enqueue_scripts', [$this, 'payment_scripts']);
 
@@ -85,6 +86,8 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
 		// Auto sync products on update and purchase
         add_action('save_post_product', [$this, 'handle_sync_product_on_save'], 10, 3);
         add_action('woocommerce_order_status_completed', [$this, 'handle_sync_products_on_order_complete']);
+
+        add_action('woocommerce_after_add_to_cart_button', [$this, 'add_klump_button_to_product']);
     }
 
     public function handle_sync_product_on_save($post_id, $post, $update) {
@@ -289,9 +292,6 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         if ($this->id !== $payment_method) {
             return;
         }
-
-        // payment processor JS that allows to get a token
-        wp_enqueue_script('klp_payment_js', KLP_WC_SDK_URL, [], null, true);
 
         wp_enqueue_script('klp_js', plugins_url('assets/js/klp-payment.js', KLP_WC_PLUGIN_FILE), [], null, true);
 
@@ -682,5 +682,47 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         }
 
         return true;
+    }
+
+    /**
+     * Enqueue Klump scripts
+     */
+    public function enqueue_klump_scripts(): void
+    {
+        if ('no' === $this->enabled || empty($this->public_key)) {
+            return;
+        }
+
+        // Only load on checkout pay page or product pages when ads are enabled
+        if (is_checkout_pay_page() || (is_product() && $this->show_klp_ads)) {
+            wp_enqueue_script('klp_payment_js', KLP_WC_SDK_URL, [], null, true);
+        }
+
+        if (is_checkout_pay_page()) {
+            wp_enqueue_script('klp_js', plugins_url('assets/js/klp-payment.js', KLP_WC_PLUGIN_FILE), [], null, true);
+        }
+    }
+
+    public function add_klump_button_to_product() {
+        if (!$this->is_active() || !$this->supportCurrency()) {
+            return;
+        }
+
+        global $product;
+        if (!$product) {
+            return;
+        }
+    
+        $price = $product->get_price();
+
+        ?>
+        <div class="klump-product-button" style="margin-top: 15px;">
+            <div id="klump__ad">
+                <input type="hidden" value="<?php echo esc_attr($price); ?>" id="klump__price">
+                <input type="hidden" value="<?php echo esc_attr($this->public_key); ?>" id="klump__merchant__public__key">
+                <input type="hidden" value="<?php echo esc_attr(get_woocommerce_currency()); ?>" id="klump__currency">
+            </div>
+        </div>
+        <?php
     }
 }
