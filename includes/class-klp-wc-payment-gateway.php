@@ -313,10 +313,7 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $order_items = [];
 
             // Calculate total coupon amount
-            $discount = 0;
-            foreach ($order->get_items('coupon') as $coupon_item) {
-                $discount += $coupon_item->get_discount();
-            }
+            $discount = (float) $order->get_discount_total() + (float) $order->get_discount_tax();
 
             foreach ($order->get_items() as $key => $item) {
                 $product   = wc_get_product($item->get_product_id());
