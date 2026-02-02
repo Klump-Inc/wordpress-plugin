@@ -284,6 +284,9 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
         $order_key = sanitize_text_field(urldecode($_GET['key']));
         $order_id  = absint(get_query_var('order-pay'));
 
+		if ( ! is_singular()) {
+			return;
+		}
         $order = wc_get_order($order_id);
 
         $payment_method = method_exists($order,
@@ -316,7 +319,13 @@ class KLP_WC_Payment_Gateway extends WC_Payment_Gateway
             $discount = (float) $order->get_discount_total() + (float) $order->get_discount_tax();
 
             foreach ($order->get_items() as $key => $item) {
+                if ( ! $item instanceof \WC_Order_Item_Product) {
+                    continue;
+                }
                 $product   = wc_get_product($item->get_product_id());
+                if ( ! $product) {
+                    continue;
+                }
                 $image_url = wp_get_attachment_image_url($product->get_image_id(), 'full');
 
                 $quantity   = $item->get_quantity();

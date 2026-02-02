@@ -23,5 +23,4 @@ Ensure you have SVN installed on your system.
 ### Authors
 
 - Celestine Omin
-- Temitope
 - [Imo-owo Nabuk](https://github.com/richienabuk)
